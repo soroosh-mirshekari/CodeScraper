@@ -14,12 +14,16 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
 }
 response = requests.get(url, headers=headers)
+seen_id = set()
 
 if response.status_code == 200:
     data = response.json()
     cnt = 1
     for item in data.get("results", []):
-        print(cnt, ":", item.get("id"))
-        cnt += 1
+        id = item.get("id")
+        if id not in seen_id:
+            print(cnt, ":", id)
+            seen_id.add(id)
+            cnt += 1
 else:
     print("خطا در دریافت داده:", response.status_code)

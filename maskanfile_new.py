@@ -9,6 +9,8 @@ driver = webdriver.Chrome(service=Service())
 driver.get("https://maskan-file.ir/Site/Default.aspx")
 time.sleep(4)
 
+#test account
+
 def extract_ids(soup):
     links = soup.find_all("a", class_="more-detail")
     cnt = 1

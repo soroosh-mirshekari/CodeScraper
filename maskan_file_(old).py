@@ -7,6 +7,7 @@ import re
 
 driver = webdriver.Chrome(service=Service())
 driver.get("https://maskan-file.ir/Site/Default.aspx")
+seen_id = set()
 time.sleep(4)
 
 def extract_id(soup):
@@ -15,9 +16,10 @@ def extract_id(soup):
     for link in links:
         id = link.get("id", "")
         match = re.search(r'moreDetail_(\d+)', id)
-        if match:
+        if match and match.group(1) not in seen_id:
             id_number = match.group(1)
             print(cnt,":", id_number)
+            seen_id.add(id_number)
             cnt += 1
             
 while True:

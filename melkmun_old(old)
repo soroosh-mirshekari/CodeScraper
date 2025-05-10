@@ -13,9 +13,9 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36"
 }
 
-seen_ids = set()
+seen_id = set()
 limit = 20
-total_pages = 10
+total_pages = 200
 cnt = 1
 
 for page in range(total_pages):
@@ -26,12 +26,12 @@ for page in range(total_pages):
     if response.status_code == 200:
         data = response.json()
         for item in data.get("results", []):
-            ad_id = item.get("id")
-            if ad_id and ad_id not in seen_ids:
-                print(cnt, ":", ad_id)
-                seen_ids.add(ad_id)
+            id = item.get("id")
+            if id and id not in seen_id:
+                print(cnt, ":", id)
+                seen_id.add(id)
                 cnt += 1
     else:
-        print("خطا در دریافت صفحه", page+1)
+        print("خطا در دریافت صفحه", page + 1)
     
     time.sleep(1)

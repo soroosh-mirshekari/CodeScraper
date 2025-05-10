@@ -30,5 +30,4 @@ while True:
         next_button.click()
     except:
         break
-
 driver.quit()

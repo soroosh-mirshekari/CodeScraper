@@ -34,7 +34,7 @@ class Melkemun:
         if response.status_code == 200:
             return response.json().get("results", [])
         else:
-            print("خطا در دریافت داده:", response.status_code)
+            print("ERROR")
             return []
 
     def process_results(self, results):

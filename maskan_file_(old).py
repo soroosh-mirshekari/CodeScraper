@@ -41,7 +41,7 @@ class Maskan_File:
         try:
             self.start_driver()
             while True:
-                time.sleep(1)  # برای بارگذاری محتوا
+                time.sleep(1)
                 html = self.driver.page_source
                 soup = BeautifulSoup(html, "html.parser")
                 self.extract_ids(soup)

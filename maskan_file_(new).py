@@ -5,24 +5,42 @@ from bs4 import BeautifulSoup
 import time
 import re
 
-driver = webdriver.Chrome(service=Service())
-driver.get("https://maskan-file.ir/Site/Default.aspx")
-time.sleep(4)
+class Maskan_File:
+    def __init__(self, url):
+        self.url = url
+        self.seen_ids = set()
+        
+    def start_driver(self):
+        self.driver = webdriver.Chrome(service=Service())
+        self.driver.get(self.url)
+        time.sleep(4)
+        self.html = self.driver.page_source
+        self.soup = BeautifulSoup(self.html, "html.parser")
 
-def extract_id(soup):
-    links = soup.find_all("a", class_="more-detail")
-    seen_id = set()
-    cnt = 1
-    for link in links:
-        id = link.get("id", "")
-        match = re.search(r'moreDetail_(\d+)', id)
-        if match and match.group(1) not in seen_id:
-            id_number = match.group(1)
-            print(cnt,":", id_number)
-            seen_id.add(id_number)
-            cnt += 1
-            
-html = driver.page_source
-soup = BeautifulSoup(html, "html.parser")
-extract_id(soup)
-driver.quit()
+    def extract_ids(self):
+        links = self.soup.find_all("a", class_="more-detail")
+        cnt = 1
+        
+        for link in links:
+            element_id = link.get("id", "")
+            match = re.search(r'moreDetail_(\d+)', element_id)
+            if match and match.group(1) not in self.seen_ids:
+                id_number = match.group(1)
+                print(cnt,":", id_number)
+                self.seen_ids.add(id_number)
+                cnt += 1
+    
+    def quit_driver(self):
+        if self.driver:
+            self.driver.quit()   
+    
+    def run(self):
+        try:
+            self.start_driver()
+            self.extract_ids()
+        finally:
+            self.quit_driver()
+
+if __name__ == "__main__":
+    scraper = Maskan_File("https://maskan-file.ir/Site/Default.aspx")
+    scraper.run()

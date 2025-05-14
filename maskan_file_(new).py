@@ -8,6 +8,7 @@ import re
 class Maskan_File:
     def __init__(self, url):
         self.url = url
+        self.seen_ids = set()
         
     def start_driver(self):
         self.driver = webdriver.Chrome(service=Service())
@@ -18,16 +19,15 @@ class Maskan_File:
 
     def extract_ids(self):
         links = self.soup.find_all("a", class_="more-detail")
-        seen_ids = set()
         cnt = 1
         
         for link in links:
             element_id = link.get("id", "")
             match = re.search(r'moreDetail_(\d+)', element_id)
-            if match and match.group(1) not in seen_ids:
+            if match and match.group(1) not in self.seen_ids:
                 id_number = match.group(1)
                 print(cnt,":", id_number)
-                seen_ids.add(id_number)
+                self.seen_ids.add(id_number)
                 cnt += 1
     
     def quit_driver(self):

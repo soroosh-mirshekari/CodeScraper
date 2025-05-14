@@ -5,31 +5,51 @@ from bs4 import BeautifulSoup
 import time
 import re
 
-driver = webdriver.Chrome(service=Service())
-driver.get("https://maskan-file.ir/Site/Default.aspx")
-seen_id = set()
-time.sleep(4)
+class Maskan_File:
+    def __init__(self, url):
+        self.url = url
+        self.seen_ids = set()
 
-def extract_id(soup):
-    links = soup.find_all("a", class_="more-detail")
-    cnt = 1
-    for link in links:
-        id = link.get("id", "")
-        match = re.search(r'moreDetail_(\d+)', id)
-        if match and match.group(1) not in seen_id:
-            id_number = match.group(1)
-            print(cnt,":", id_number)
-            seen_id.add(id_number)
-            cnt += 1
+    def start_driver(self):
+        self.driver = webdriver.Chrome(service=Service())
+        self.driver.get(self.url)
+        time.sleep(4)
+    
+    def extract_ids(self, soup):
+        links = soup.find_all("a", class_="more-detail")
+        cnt = len(self.seen_ids) + 1
+
+        for link in links:
+            element_id = link.get("id", "")
+            match = re.search(r'moreDetail_(\d+)', element_id)
+            if match:
+                id_number = match.group(1)
+                if id_number not in self.seen_ids:
+                    print(cnt ,":", id_number)
+                    self.seen_ids.add(id_number)
+                    cnt += 1
+                    
+    def click_next(self):
+        try:
+            next_button = self.driver.find_element(By.LINK_TEXT, "مشاهده موارد بیشتر")
+            next_button.click()
+            return True
+        except:
+            return False
+        
+    def run(self):
+        try:
+            self.start_driver()
+            while True:
+                time.sleep(1)  # برای بارگذاری محتوا
+                html = self.driver.page_source
+                soup = BeautifulSoup(html, "html.parser")
+                self.extract_ids(soup)
+                if not self.click_next():
+                    break
+        finally:
+            self.driver.quit()
             
-while True:
-    time.sleep(2)
-    html = driver.page_source
-    soup = BeautifulSoup(html, "html.parser")
-    extract_id(soup)
-    try:
-        next_button = driver.find_element(By.LINK_TEXT, "مشاهده موارد بیشتر")
-        next_button.click()
-    except:
-        break
-driver.quit()
+if __name__ == "__main__":
+    scraper = Maskan_File("https://maskan-file.ir/Site/Default.aspx")
+    scraper.run() 

@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
 import time  
+from maskan_file_cleaner import RealEstateCleaner
 
 class RealEstateScraper:
     def __init__(self, property_code):
@@ -122,4 +123,8 @@ if __name__ == "__main__":
     scraper = RealEstateScraper(input("Enter property code: "))
     property_data = scraper.scrape()
     print(property_data if property_data else "Failed to retrieve property data")
+    cleaner = RealEstateCleaner()
+    cleaned_data = cleaner.clean(property_data)
+    print(cleaned_data)
+
     

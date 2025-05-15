@@ -168,15 +168,15 @@ class RealEstateCleaner:
             
         return None
 
-    def _clean_facilities(self, facilities: List[str]) -> str:
+    def _clean_facilities(self, facilities: List[str]) -> List[str]:
         """
-        Cleans list of facilities and returns a comma-separated string by:
+        Cleans list of facilities by:
         - Removing empty/None items
         - Trimming whitespace
         - Removing duplicates while preserving order
         """
         if not facilities:
-            return ""
+            return []
             
         cleaned = []
         seen = set()
@@ -188,18 +188,18 @@ class RealEstateCleaner:
                     cleaned.append(item)
                     seen.add(item)
                     
-        return ", ".join(cleaned)
+        return cleaned
 
-    def _clean_images(self, images: List[str]) -> str:
+    def _clean_images(self, images: List[str]) -> List[str]:
         """
-        Cleans list of image URLs and returns a comma-separated string by:
+        Cleans list of image URLs by:
         - Removing empty/None items
         - Trimming whitespace
         - Removing duplicates while preserving order
         - TODO: Add URL validation/normalization
         """
         if not images:
-            return ""
+            return []
             
         cleaned = []
         seen = set()
@@ -211,4 +211,4 @@ class RealEstateCleaner:
                     cleaned.append(url)
                     seen.add(url)
                     
-        return ", ".join(cleaned)
+        return cleaned

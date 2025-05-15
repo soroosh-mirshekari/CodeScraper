@@ -19,16 +19,17 @@ class Maskan_File:
 
     def extract_ids(self):
         links = self.soup.find_all("a", class_="more-detail")
-        cnt = 1
+        id_list = []
         
         for link in links:
             element_id = link.get("id", "")
             match = re.search(r'moreDetail_(\d+)', element_id)
             if match and match.group(1) not in self.seen_ids:
                 id_number = match.group(1)
-                print(cnt,":", id_number)
+                id_list.append(id_number)
                 self.seen_ids.add(id_number)
-                cnt += 1
+        
+        return id_list
     
     def quit_driver(self):
         if self.driver:
@@ -37,10 +38,11 @@ class Maskan_File:
     def run(self):
         try:
             self.start_driver()
-            self.extract_ids()
+            return self.extract_ids()
         finally:
             self.quit_driver()
 
 if __name__ == "__main__":
     scraper = Maskan_File("https://maskan-file.ir/Site/Default.aspx")
-    scraper.run()
+    ids = scraper.run()
+    print(ids)

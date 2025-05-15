@@ -17,7 +17,7 @@ class Maskan_File:
     
     def extract_ids(self, soup):
         links = soup.find_all("a", class_="more-detail")
-        cnt = len(self.seen_ids) + 1
+        id_list = []
 
         for link in links:
             element_id = link.get("id", "")
@@ -25,10 +25,11 @@ class Maskan_File:
             if match:
                 id_number = match.group(1)
                 if id_number not in self.seen_ids:
-                    print(cnt ,":", id_number)
+                    id_list.append(id_number)
                     self.seen_ids.add(id_number)
-                    cnt += 1
                     
+        return id_list
+        
     def click_next(self):
         try:
             next_button = self.driver.find_element(By.LINK_TEXT, "مشاهده موارد بیشتر")
@@ -38,18 +39,24 @@ class Maskan_File:
             return False
         
     def run(self):
+        trylisten = True
+        all_ids = []
         try:
             self.start_driver()
             while True:
                 time.sleep(1)
                 html = self.driver.page_source
                 soup = BeautifulSoup(html, "html.parser")
-                self.extract_ids(soup)
+                ids = self.extract_ids(soup)
+                all_ids.extend(ids)
                 if not self.click_next():
                     break
         finally:
             self.driver.quit()
+        
+        return all_ids
             
 if __name__ == "__main__":
-    scraper = Maskan_File("https://maskan-file.ir/Site/Default.aspx")
-    scraper.run() 
+    scraper = Maskan_File("https://maskan-file.ir/Site/Default.aspx")2878407
+    ids = scraper.run()
+    print(ids)

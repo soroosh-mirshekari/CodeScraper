@@ -8,7 +8,7 @@ import re
 class Maskan_File:
     def __init__(self, url):
         self.url = url
-        self.seen_ids = set()
+        self.seen_links = set()
         
     def start_driver(self):
         self.driver = webdriver.Chrome(service=Service())
@@ -17,19 +17,21 @@ class Maskan_File:
         self.html = self.driver.page_source
         self.soup = BeautifulSoup(self.html, "html.parser")
 
-    def extract_ids(self):
-        links = self.soup.find_all("a", class_="more-detail")
-        id_list = []
+    def extract_links(self):
+        links = self.soup.find_all("div", class_="btn-showdetail")
+        link_list = []
         
-        for link in links:
-            element_id = link.get("id", "")
-            match = re.search(r'moreDetail_(\d+)', element_id)
-            if match and match.group(1) not in self.seen_ids:
-                id_number = match.group(1)
-                id_list.append(id_number)
-                self.seen_ids.add(id_number)
+        for div in links:
+            onclick = div.get("onclick", "")
+            if onclick:
+                match = re.search(r"window\.open\('([^']+)'\)", onclick)
+                if match:
+                    full_link = match.group(1)
+                    if full_link and full_link not in self.seen_links:
+                        link_list.append(full_link)
+                        self.seen_links.add(full_link)
         
-        return id_list
+        return link_list
     
     def quit_driver(self):
         if self.driver:
@@ -38,11 +40,11 @@ class Maskan_File:
     def run(self):
         try:
             self.start_driver()
-            return self.extract_ids()
+            return self.extract_links()
         finally:
             self.quit_driver()
 
 if __name__ == "__main__":
-    scraper = Maskan_File("https://maskan-file.ir/Site/Default.aspx")
-    ids = scraper.run()
-    print(ids)
+    detector = Maskan_File("https://maskan-file.ir/Site/Default.aspx")
+    links = detector.run()
+    print(links)

@@ -8,27 +8,28 @@ import re
 class Maskan_File:
     def __init__(self, url):
         self.url = url
-        self.seen_ids = set()
+        self.seen_links = set()
 
     def start_driver(self):
         self.driver = webdriver.Chrome(service=Service())
         self.driver.get(self.url)
         time.sleep(4)
     
-    def extract_ids(self, soup):
-        links = soup.find_all("a", class_="more-detail")
-        id_list = []
+    def extract_links(self, soup):
+        links = soup.find_all("div", class_="btn-showdetail")
+        link_list = []
 
-        for link in links:
-            element_id = link.get("id", "")
-            match = re.search(r'moreDetail_(\d+)', element_id)
-            if match:
-                id_number = match.group(1)
-                if id_number not in self.seen_ids:
-                    id_list.append(id_number)
-                    self.seen_ids.add(id_number)
+        for div in links:
+            onclick = div.get("onclick", "")
+            if onclick:
+                match = re.search(r"window\.open\('([^']+)'\)", onclick)
+                if match:
+                    full_link = match.group(1)
+                    if full_link not in self.seen_links:
+                        link_list.append(full_link)
+                        self.seen_links.add(full_link)
                     
-        return id_list
+        return link_list
         
     def click_next(self):
         try:
@@ -40,23 +41,23 @@ class Maskan_File:
         
     def run(self):
         trylisten = True
-        all_ids = []
+        all_links = []
         try:
             self.start_driver()
             while True:
                 time.sleep(1)
                 html = self.driver.page_source
                 soup = BeautifulSoup(html, "html.parser")
-                ids = self.extract_ids(soup)
-                all_ids.extend(ids)
+                links = self.extract_links(soup)
+                all_links.extend(links)
                 if not self.click_next():
                     break
         finally:
             self.driver.quit()
         
-        return all_ids
+        return all_links
             
 if __name__ == "__main__":
     scraper = Maskan_File("https://maskan-file.ir/Site/Default.aspx")
-    ids = scraper.run()
-    print(ids)
+    links = scraper.run()
+    print(links)

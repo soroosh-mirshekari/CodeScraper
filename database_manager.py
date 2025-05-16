@@ -34,8 +34,6 @@ class Data(Base):
     pictures = Column(JSON, nullable=True)
     is_rental = Column(Boolean, nullable=True)
 
-    def __repr__(self):
-        return f"<Data(file_code={self.file_code}, title={self.title})>"
 
 # Create all tables
 Base.metadata.create_all(engine)
@@ -106,6 +104,22 @@ def select_data():
     except SQLAlchemyError as e:
         logging.error(f"Error fetching data: {e}")
         return []
+    
+# Function to delete data by ID
+def delete_data(data_id):
+    try:
+        with session_scope() as session:
+            data = session.query(Data).filter(Data.id == data_id).first()
+            if data:
+                session.delete(data)
+                logging.info(f"Deleted data with ID: {data_id}")
+                return True
+            else:
+                logging.warning(f"No data found with ID: {data_id}")
+                return False
+    except SQLAlchemyError as e:
+        logging.error(f"Error deleting data with ID {data_id}: {e}")
+        return False
 
 if __name__ == "__main__":
     test_data = [

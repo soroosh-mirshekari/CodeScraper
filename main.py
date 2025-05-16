@@ -16,6 +16,7 @@ def maskan_scraper(property_codes):
             # TODO:  algorythm moshabeh here
 
             create_data(cleaned_data)
+            print("One data added")
 
 def maskan():
     # fetch old data

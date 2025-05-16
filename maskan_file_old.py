@@ -57,6 +57,6 @@ class Maskan_File:
         return all_ids
             
 if __name__ == "__main__":
-    scraper = Maskan_File("https://maskan-file.ir/Site/Default.aspx")2878407
+    scraper = Maskan_File("https://maskan-file.ir/Site/Default.aspx")
     ids = scraper.run()
     print(ids)

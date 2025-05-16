@@ -21,8 +21,8 @@ class Data(Base):
     __tablename__ = "codescraper"
     id = Column(Integer, primary_key=True, autoincrement=True)  # Unique ID
     file_code = Column(String(50), nullable=False)
-    title = Column(String(50), nullable=False)
-    address = Column(String(100), nullable=False)
+    title = Column(String(100), nullable=False) #increased lenght from 50 to 100 cause some of them were more that 100
+    address = Column(String(200), nullable=False) #increased lenght from 100 to 200 cause some of them were more that 100
     total_price = Column(Float, nullable=True)  
     price_per_meter = Column(Float, nullable=True)
     mortgage = Column(Float, nullable=True)

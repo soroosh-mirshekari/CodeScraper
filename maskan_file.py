@@ -4,11 +4,10 @@ import time
 from maskan_file_cleaner import RealEstateCleaner
 
 class RealEstateScraper:
-    def __init__(self, property_code):
-        self.property_code = property_code
-        self.base_url = "https://maskan-file.ir/Site/Homes.aspx?codeFile=" 
+    def __init__(self, property_url):
+        self.property_url = property_url
         self.data = {
-            "file_code": property_code,
+            "file_code": "",
             "title": "",
             "address": "",
             "total_price": "",
@@ -25,7 +24,7 @@ class RealEstateScraper:
 
     def scrape(self):
         try:
-            url = self.base_url + str(self.property_code)
+            url = self.property_url
             options = webdriver.ChromeOptions()
             options.add_argument('--headless') 
             options.add_argument('--disable-gpu')
@@ -34,11 +33,15 @@ class RealEstateScraper:
             driver = webdriver.Chrome(options=options)
             driver.get(url)
             
-            
             time.sleep(2)
             
             soup = BeautifulSoup(driver.page_source, 'html.parser')
             driver.quit()  
+
+            # Extract file code from URL if needed
+            import re
+            match = re.search(r'Homes/(\d+)/', url)
+            self.data["file_code"] = match.group(1) if match else ""
 
             property_type_div = soup.select_one('div.col-md-4.col-sm-4.col-lg-3.col-xs-12.col-12')
             if property_type_div and "رهن و اجاره" in property_type_div.get_text(strip=True):
@@ -120,11 +123,11 @@ class RealEstateScraper:
             return []
 
 if __name__ == "__main__":
-    scraper = RealEstateScraper(input("Enter property code: "))
+    scraper = RealEstateScraper(input("Enter property URL: "))
     property_data = scraper.scrape()
     print(property_data if property_data else "Failed to retrieve property data")
     cleaner = RealEstateCleaner()
     cleaned_data = cleaner.clean(property_data)
     print(cleaned_data)
 
-    
+# ['https://www.maskan-file.ir/Site/Homes/2882323/3/رهن-و-اجاره-آپارتمان-500-متری', 'https://www.maskan-file.ir/Site/Homes/2882329/1/رهن-و-اجاره-ویلایی-2600-متری', 'https://www.maskan-file.ir/Site/Homes/2887458/3/رهن-و-اجاره-آپارتمان-2200-متری', 'https://www.maskan-file.ir/Site/Homes/2194908/1/رهن-و-اجاره-ویلایی-1500-متری', 'https://www.maskan-file.ir/Site/Homes/2877762/1/رهن-و-اجاره-آپارتمان-1300-متری', 'https://www.maskan-file.ir/Site/Homes/2882502/1/رهن-و-اجاره-آپارتمان-1400-متری', 'https://www.maskan-file.ir/Site/Homes/2882744/1/رهن-و-اجاره-آپارتمان-78-متری', 'https://www.maskan-file.ir/Site/Homes/2882474/1/رهن-و-اجاره-آپارتمان-700-متری', 'https://www.maskan-file.ir/Site/Homes/2114356/1/فروش-ویلایی-1200-متری', 'https://www.maskan-file.ir/Site/Homes/2882864/3/رهن-و-اجاره-ویلایی-55-متری', 'https://www.maskan-file.ir/Site/Homes/2878124/3/رهن-و-اجاره-مغازه-400-متری', 'https://www.maskan-file.ir/Site/Homes/1536383/1/رهن-و-اجاره-مغازه-22-متری', 'https://www.maskan-file.ir/Site/Homes/2413997/3/رهن-و-اجاره-مغازه-24-متری', 'https://www.maskan-file.ir/Site/Homes/2887430/3/رهن-و-اجاره-دفترکار-400-متری', 'https://www.maskan-file.ir/Site/Homes/2873117/1/رهن-و-اجاره-آپارتمان-900-متری', 'https://www.maskan-file.ir/Site/Homes/2845026/1/رهن-و-اجاره-آپارتمان-900-متری', 'https://www.maskan-file.ir/Site/Homes/2866084/3/فروش-آپارتمان-98-متری', 'https://www.maskan-file.ir/Site/Homes/2832326/3/فروش-مغازه-27-متری', 'https://www.maskan-file.ir/Site/Homes/2464561/3/رهن-و-اجاره-مغازه-1500-متری', 'https://www.maskan-file.ir/Site/Homes/2887429/3/فروش-مغازه-500-متری']

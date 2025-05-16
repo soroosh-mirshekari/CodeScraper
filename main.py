@@ -3,6 +3,7 @@ from maskan_file_new import Maskan_File as MaskanDetcNew
 from maskan_file_old import Maskan_File as MaskanDectOld
 from maskan_file import RealEstateCleaner, RealEstateScraper
 from melkemun import EstateManager
+from melkemun_cleaner import MelkemunEstateCleaner
 from database_manager import create_data, select_data
 
 def maskan_scraper(property_codes):
@@ -43,9 +44,12 @@ def melkmun_scraper(n):
     for n in range(0,n):
         estate_data = manager.get_estate_by_index(n)
 
-        # TODO: cleaner and algorithm
+        cleaner = MelkemunEstateCleaner()
+        cleaned_data = cleaner.clean(estate_data)
 
-        create_data(estate_data)
+        # TODO:  algorithm here
+
+        create_data(cleaned_data)
 
 def melkmun():
     # getting the old data (old scraper) and save in database

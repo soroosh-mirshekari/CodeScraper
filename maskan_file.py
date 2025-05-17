@@ -25,16 +25,17 @@ class RealEstateScraper:
     def scrape(self):
         try:
             url = self.property_url
+            # Getting page source without opening chrome visually
             options = webdriver.ChromeOptions()
             options.add_argument('--headless') 
             options.add_argument('--disable-gpu')
             options.add_argument('--no-sandbox')
-            
+        
             driver = webdriver.Chrome(options=options)
             driver.get(url)
-            
+
+            # One step ahead of internet operators
             time.sleep(2)
-            
             soup = BeautifulSoup(driver.page_source, 'html.parser')
             driver.quit()  
 
@@ -96,6 +97,7 @@ class RealEstateScraper:
         else:
             self.data["facilities"] = []
 
+    # Helper method to safely extract text using a CSS selector
     def _extract_text(self, parent, selector):
         if parent is None:
             return ""
@@ -110,6 +112,7 @@ class RealEstateScraper:
             for img in main_images:
                 src = img.get('src', '')
                 if 'index.png' not in src and src:
+                    # Normalize relative URLs
                     if src.startswith('../../../../../'):
                         src = "https://maskan-file.ir" + src.replace('../../../../../', '/')
                     elif not src.startswith(('http://', 'https://')):

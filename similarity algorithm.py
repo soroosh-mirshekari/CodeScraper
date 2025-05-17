@@ -1,5 +1,4 @@
 from difflib import SequenceMatcher
-import numpy as np
 
 class PropertySimilarity:
     def __init__(self):
@@ -48,6 +47,21 @@ class PropertySimilarity:
                 max_rent = max(float(p1['rent']), float(p2['rent']))
                 score += self.weight_config['price'] * (1 - rent_diff / (2*max_rent) - mortgage_diff / (2*max_motgage))
             return round(score*100, 2)
+    
+    def compare_properties(self , properties) -> list[dict]:
+        results = []
+        for i in range(len(properties)):
+            for j in range(i+1, len(properties)):
+                p1, p2 = properties[i] , properties[j]
+                similarity = self.similarity_score(p1,p2)
+                if similarity >= 70:
+                    results.append({
+                        'property_1': p1['id'],
+                        'property_2': p2['id'],
+                        'similarity': similarity
+                    })
+        results.sort(key=lambda x: x['similarity'],reverse=True)
+        return results
 
 if __name__ == '__main__':
     p1 = {'file_code': '', 'title': 'جلال 62 اولین تقاطع سمت چپ', 'address': 'منطقه 11 محله آزاد شهر خیابان جلال آل احمد ( ایرج میرزا ) 62 اولین تقاطع سمت چپ', 'total_price': 8880000000, 'price_per_meter': 48000000, 'mortgage': None, 'rent': None, 'area': 185, 'number_of_rooms': 3, 'year_of_manufacture': 1, 'facilities': ['پارکینگ', 'آسانسور', 'انباری', 'تراس', 'معاوضه'], 'pictures': [], 'is_rental': False}

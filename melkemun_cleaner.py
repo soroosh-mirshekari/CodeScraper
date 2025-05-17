@@ -202,7 +202,7 @@ class MelkemunEstateCleaner:
             return ""
             
         try:
-            return str(int(year))
+            return str(int(1404-year)) if year>1300 else str(int(year))
         except (ValueError, TypeError):
             return ""
 

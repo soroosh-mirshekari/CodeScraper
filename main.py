@@ -31,14 +31,14 @@ def maskan():
 
     while True:
         
-        time.sleep(random.uniform(20, 30)) #Use random delays to mimic human browsing patterns
-
         print("new scraping started.")
         detector = MaskanDetcNew("https://maskan-file.ir/Site/Default.aspx")
         new_property_codes = detector.run()
         
         # scrap data and put new data in database
         maskan_scraper(new_property_codes)
+
+        time.sleep(random.uniform(20, 30)) #Use random delays to mimic human browsing patterns
 
 def melkmun_scraper(n):
     manager = EstateManager()

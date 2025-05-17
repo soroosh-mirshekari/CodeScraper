@@ -38,10 +38,10 @@ class RealEstateScraper:
             soup = BeautifulSoup(driver.page_source, 'html.parser')
             driver.quit()  
 
-            # Extract file code from URL if needed
+            # Extract file code from URL
             import re
             match = re.search(r'Homes/(\d+)/', url)
-            self.data["file_code"] = match.group(1) if match else ""
+            self.data["file_code"] = match.group(1) 
 
             property_type_div = soup.select_one('div.col-md-4.col-sm-4.col-lg-3.col-xs-12.col-12')
             if property_type_div and "رهن و اجاره" in property_type_div.get_text(strip=True):
@@ -129,5 +129,3 @@ if __name__ == "__main__":
     cleaner = RealEstateCleaner()
     cleaned_data = cleaner.clean(property_data)
     print(cleaned_data)
-
-# ['https://www.maskan-file.ir/Site/Homes/2882323/3/رهن-و-اجاره-آپارتمان-500-متری', 'https://www.maskan-file.ir/Site/Homes/2882329/1/رهن-و-اجاره-ویلایی-2600-متری', 'https://www.maskan-file.ir/Site/Homes/2887458/3/رهن-و-اجاره-آپارتمان-2200-متری', 'https://www.maskan-file.ir/Site/Homes/2194908/1/رهن-و-اجاره-ویلایی-1500-متری', 'https://www.maskan-file.ir/Site/Homes/2877762/1/رهن-و-اجاره-آپارتمان-1300-متری', 'https://www.maskan-file.ir/Site/Homes/2882502/1/رهن-و-اجاره-آپارتمان-1400-متری', 'https://www.maskan-file.ir/Site/Homes/2882744/1/رهن-و-اجاره-آپارتمان-78-متری', 'https://www.maskan-file.ir/Site/Homes/2882474/1/رهن-و-اجاره-آپارتمان-700-متری', 'https://www.maskan-file.ir/Site/Homes/2114356/1/فروش-ویلایی-1200-متری', 'https://www.maskan-file.ir/Site/Homes/2882864/3/رهن-و-اجاره-ویلایی-55-متری', 'https://www.maskan-file.ir/Site/Homes/2878124/3/رهن-و-اجاره-مغازه-400-متری', 'https://www.maskan-file.ir/Site/Homes/1536383/1/رهن-و-اجاره-مغازه-22-متری', 'https://www.maskan-file.ir/Site/Homes/2413997/3/رهن-و-اجاره-مغازه-24-متری', 'https://www.maskan-file.ir/Site/Homes/2887430/3/رهن-و-اجاره-دفترکار-400-متری', 'https://www.maskan-file.ir/Site/Homes/2873117/1/رهن-و-اجاره-آپارتمان-900-متری', 'https://www.maskan-file.ir/Site/Homes/2845026/1/رهن-و-اجاره-آپارتمان-900-متری', 'https://www.maskan-file.ir/Site/Homes/2866084/3/فروش-آپارتمان-98-متری', 'https://www.maskan-file.ir/Site/Homes/2832326/3/فروش-مغازه-27-متری', 'https://www.maskan-file.ir/Site/Homes/2464561/3/رهن-و-اجاره-مغازه-1500-متری', 'https://www.maskan-file.ir/Site/Homes/2887429/3/فروش-مغازه-500-متری']

@@ -1,6 +1,6 @@
 import logging
 from sqlalchemy import create_engine, Column, Integer, String, Float, Boolean, JSON
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker, aliased
 from sqlalchemy.exc import SQLAlchemyError
 from contextlib import contextmanager
 
@@ -42,6 +42,7 @@ class Similarity(Base):
     similarity = Column(Float, nullable=True)
 
 # Create all tables
+
 Base.metadata.create_all(engine)
 
 # Create a session factory
@@ -118,6 +119,73 @@ def create_sim(dict_sim):
         logging.error(f"Error inserting similarity data: {e}")
         return False
 
+# Function to fetch all similarity pairs with their corresponding Data table info
+def select_similarity_pairs():
+    try:
+        with session_scope() as session:
+            # Create aliases for the Data table
+            Data1 = aliased(Data, name='data1')
+            Data2 = aliased(Data, name='data2')
+            
+            # Join Similarity with Data for id_1 and id_2 using aliases
+            results = []
+            sim_data = session.query(Similarity, Data1, Data2).\
+                join(Data1, Similarity.id_1 == Data1.id, isouter=True).\
+                join(Data2, Similarity.id_2 == Data2.id, isouter=True).\
+                all()
+            
+            for sim, data1, data2 in sim_data:
+                pair = {
+                    "similarity_id": sim.id,
+                    "similarity_score": sim.similarity,
+                    "data_1": None,
+                    "data_2": None
+                }
+                if data1:
+                    pair["data_1"] = {
+                        "id": data1.id,
+                        "file_code": data1.file_code,
+                        "title": data1.title,
+                        "address": data1.address,
+                        "total_price": data1.total_price,
+                        "price_per_meter": data1.price_per_meter,
+                        "mortgage": data1.mortgage,
+                        "rent": data1.rent,
+                        "area": data1.area,
+                        "number_of_rooms": data1.number_of_rooms,
+                        "year_of_manufacture": data1.year_of_manufacture,
+                        "facilities": data1.facilities,
+                        "pictures": data1.pictures,
+                        "is_rental": data1.is_rental,
+                    }
+                else:
+                    logging.warning(f"No data found for id_1: {sim.id_1}")
+                if data2:
+                    pair["data_2"] = {
+                        "id": data2.id,
+                        "file_code": data2.file_code,
+                        "title": data2.title,
+                        "address": data2.address,
+                        "total_price": data2.total_price,
+                        "price_per_meter": data2.price_per_meter,
+                        "mortgage": data2.mortgage,
+                        "rent": data2.rent,
+                        "area": data2.area,
+                        "number_of_rooms": data2.number_of_rooms,
+                        "year_of_manufacture": data2.year_of_manufacture,
+                        "facilities": data2.facilities,
+                        "pictures": data2.pictures,
+                        "is_rental": data2.is_rental,
+                    }
+                else:
+                    logging.warning(f"No data found for id_2: {sim.id_2}")
+                results.append(pair)
+            
+            return results
+    except SQLAlchemyError as e:
+        logging.error(f"Error fetching similarity pairs: {e}")
+        return []
+
 # Function to fetch all data into a dict
 def select_data():
     try:
@@ -191,8 +259,7 @@ if __name__ == "__main__":
             'facilities': ['آیفون تصویری', 'کمد دیواری', 'خط تلفن'], 
             'pictures': ['https://maskan-file.ir/img/FilesImages/2881482_3.jpg?v=5/15/2025', 'https://maskan-file.ir/img/FilesImages/2881482_1.jpg?v=5/15/2025', 'https://maskan-file.ir/img/FilesImages/2881482_2.jpg?v=5/15/2025'], 
             'is_rental': True
-         },
-         {'file_code': '', 'title': 'صیاد شیرازی 65 صابر 1', 'address': 'منطقه 9 محله آب و برق خیابان صابر صیاد شیرازی 65 1', 'total_price': None, 'price_per_meter': None, 'mortgage': 80000000, 'rent': 4000000, 'area': 50, 'number_of_rooms': 1, 'year_of_manufacture': None, 'facilities': ['تخلیه', 'انباری', 'هود', 'آیفون تصویری', 'گاز روکار', 'قابل تبدیل'], 'pictures': ['https://maskan-file.ir/img/FilesImages/2495856_6.jpg?v=5/17/2025', 'https://maskan-file.ir/img/FilesImages/2495856_1.jpg?v=5/17/2025', 'https://maskan-file.ir/img/FilesImages/2495856_4.jpg?v=5/17/2025', 'https://maskan-file.ir/img/FilesImages/2495856_8.jpg?v=5/17/2025', 'https://maskan-file.ir/img/FilesImages/2495856_3.jpg?v=5/17/2025', 'https://maskan-file.ir/img/FilesImages/2495856_2.jpg?v=5/17/2025', 'https://maskan-file.ir/img/FilesImages/2495856_5.jpg?v=5/17/2025', 'https://maskan-file.ir/img/FilesImages/2495856_7.jpg?v=5/17/2025'], 'is_rental': True}
+         }
     ]
 
     # sim = [
@@ -203,6 +270,15 @@ if __name__ == "__main__":
     #     }
     # ]
 
-    # Insert test similarity data
-    for data in test_data:
-        create_data(data)
+    # # Insert test data
+    # for data in test_data:
+    #     create_data(data)
+    
+    # # Insert test similarity data
+    # for data in sim:
+    #     create_sim(data)
+
+    # Test selecting similarity pairs
+    results = select_similarity_pairs()
+    for result in results:
+        print(result)

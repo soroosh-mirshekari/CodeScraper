@@ -38,15 +38,16 @@ class PropertySimilarity:
             score += self.weight_config['facilities'] * facilities_similarity
             # 7. Price similarity (normalized difference)
             if p1['is_rental'] == False:
-                price_diff = abs(float(p1['total_price']) - float(p2['total_price']))
-                max_price = max(float(p1['total_price']), float(p2['total_price']))
-                score += self.weight_config['price'] * (1 - price_diff / max_price)
+                if p1['total_price'] !=0:
+                    price_diff = abs(float(p1['total_price']) - float(p2['total_price']))
+                    max_price = max(float(p1['total_price']), float(p2['total_price']))
+                    score += self.weight_config['price'] * (1 - price_diff / max_price)
             else:
-                if p1['mortgage'] != 0 and p1['mortgage'] != 0:
+                if p1['mortgage'] != 0:
                     mortgage_diff = abs(float(p1['mortgage']) - float(p2['mortgage']))
                     max_motgage = max(float(p1['mortgage']), float(p2['mortgage']))
                     score += (self.weight_config['price']/2) * (1 - mortgage_diff / (2*max_motgage))
-                if p1['rent'] != 0 and p2['rent'] !=0:
+                if p1['rent'] != 0:
                     rent_diff = abs(float(p1['rent']) - float(p2['rent']))
                     max_rent = max(float(p1['rent']), float(p2['rent']))
                     score += (self.weight_config['price']/2) * (1 - rent_diff / (max_rent))

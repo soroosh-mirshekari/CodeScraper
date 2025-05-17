@@ -174,17 +174,21 @@ class RealEstateCleaner:
         - Removing empty/None items
         - Trimming whitespace
         - Removing duplicates while preserving order
+        - Removing specific unwanted facilities ('حضور مالک', 'معاوضه')
         """
         if not facilities:
             return []
             
         cleaned = []
         seen = set()
+
+        # Facilities to exclude
+        excluded_facilities = {'حضور مالک', 'معاوضه'}
         
         for item in facilities:
             if isinstance(item, str):
                 item = item.strip()
-                if item and item not in seen:
+                if item and item not in seen and item not in excluded_facilities:
                     cleaned.append(item)
                     seen.add(item)
                     

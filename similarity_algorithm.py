@@ -44,9 +44,11 @@ class PropertySimilarity:
             else:
                 mortgage_diff = abs(float(p1['mortgage']) - float(p2['mortgage']))
                 max_motgage = max(float(p1['mortgage']), float(p2['mortgage']))
-                rent_diff = abs(float(p1['rent']) - float(p2['rent']))
-                max_rent = max(float(p1['rent']), float(p2['rent']))
-                score += self.weight_config['price'] * (1 - rent_diff / (2*max_rent) - mortgage_diff / (2*max_motgage))
+                score += (self.weight_config['price']/2) * (1 - mortgage_diff / (2*max_motgage))
+                if p1['rent'] != 0 and p2['rent'] !=0:
+                    rent_diff = abs(float(p1['rent']) - float(p2['rent']))
+                    max_rent = max(float(p1['rent']), float(p2['rent']))
+                    score += (self.weight_config['price']/2) * (1 - rent_diff / (max_rent))
             return round(score*100, 2)
     
     def compare_properties(self , properties) -> list[dict]:

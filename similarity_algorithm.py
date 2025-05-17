@@ -2,6 +2,7 @@ from difflib import SequenceMatcher
 
 class PropertySimilarity:
     def __init__(self):
+        # Giving different weights to different parameters
         self.weight_config = {
             'title': 0.15,
             'address': 0.2,
@@ -53,6 +54,7 @@ class PropertySimilarity:
                     score += (self.weight_config['price']/2) * (1 - rent_diff / (max_rent))
             return round(score*100, 2)
     
+    # Compare a list of properties two by two
     def compare_properties(self , properties) -> list[dict]:
         results = []
         for i in range(len(properties)):

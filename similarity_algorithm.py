@@ -28,8 +28,9 @@ class PropertySimilarity:
             # 4. Room count similarity (exact match)
             score += self.weight_config['number_of_rooms'] if p1['number_of_rooms'] == p2['number_of_rooms'] else 0
             # 5. Year of manufacture (normalized difference)
-            year_diff = abs(int(p1['year_of_manufacture']) - int(p2['year_of_manufacture']))
-            score += self.weight_config['year_of_manufacture'] * max(1 - (year_diff)**2 / 50 , 0)
+            if p1['year_of_manufacture'] and p2['year_of_manufacture']:
+                year_diff = abs(int(p1['year_of_manufacture']) - int(p2['year_of_manufacture']))
+                score += self.weight_config['year_of_manufacture'] * max(1 - (year_diff)**2 / 50 , 0)
             # 6. Facilities (Jaccard similarity)
             facilities_union = set(p1['facilities']).union(set(p2['facilities']))
             facilities_intersection = set(p1['facilities']).intersection(set(p2['facilities']))

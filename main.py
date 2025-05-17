@@ -4,7 +4,7 @@ from maskan_file_old import Maskan_File as MaskanDectOld
 from maskan_file import RealEstateCleaner, RealEstateScraper
 from melkemun import EstateManager
 from melkemun_cleaner import MelkemunEstateCleaner
-from database_manager import create_data, select_data
+from database_manager import create_data, select_data, create_sim
 from similarity_algorithm import PropertySimilarity
 
 def maskan_scraper(property_codes):
@@ -67,24 +67,34 @@ def melkmun():
 
 def similarity_checker():
     all_data = select_data()
-    similarity_check = PropertySimilarity
-    check_results = similarity_check.compare_properties(all_data)
-    
+    similarity_check = PropertySimilarity()
+    check_results = similarity_check.compare_properties(properties=all_data)
+    return check_results
+
+def similarity():
+    datas = similarity_checker() 
+    for data in datas:
+        create_sim(data)
+
+    print("sim data added to database")
 
 def menu():
     while True:
         print("""choose the site you want data from:
               1.maskan
               2.melkmun
+              3.similarity check
               0.exit
               """)
         
-        user_choice = input("Enter here(1-4): ")
+        user_choice = input("Enter here(1-3): ")
 
         if user_choice == "1":
             maskan()
         elif user_choice == "2":
             melkmun()
+        elif user_choice == "3":
+            similarity()
         elif user_choice == "0":
             break
         else: print("please enter correctly.")

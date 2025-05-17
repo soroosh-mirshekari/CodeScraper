@@ -40,7 +40,6 @@ class Similarity(Base):
     id_1 = Column(Integer, nullable=True)
     id_2 = Column(Integer, nullable=True)
     similarity = Column(Float, nullable=True)
- 
 
 # Create all tables
 Base.metadata.create_all(engine)
@@ -62,44 +61,62 @@ def session_scope():
     finally:
         session.close()
 
-# Function to create data
+# function to create data with duplicate check
 def create_data(dict_data):
-    # if 
-        try:
-            with session_scope() as session:
-                new_data = Data(
-                    file_code=dict_data.get("file_code", ""),
-                    title=dict_data.get("title", ""),
-                    address=dict_data.get("address", ""),
-                    total_price=dict_data.get("total_price"),
-                    price_per_meter=dict_data.get("price_per_meter"),
-                    mortgage=dict_data.get("mortgage"),
-                    rent=dict_data.get("rent"),
-                    area=dict_data.get("area"),
-                    number_of_rooms=dict_data.get("number_of_rooms"),
-                    year_of_manufacture=dict_data.get("year_of_manufacture"),
-                    facilities=dict_data.get("facilities", []), 
-                    pictures=dict_data.get("pictures", []),  
-                    is_rental=dict_data.get("is_rental")
-                )
-                session.add(new_data)
-                logging.info(f"Inserted data: {dict_data.get('file_code')}")
-        except SQLAlchemyError as e:
-            logging.error(f"Error inserting data: {e}")
+    try:
+        with session_scope() as session:
+            # Check if file_code already exists
+            existing_data = session.query(Data).filter(Data.file_code == dict_data.get("file_code", "")).first()
+            if existing_data:
+                logging.warning(f"Data with file_code {dict_data.get('file_code')} already exists. Skipping insertion.")
+                return False
+            # Insert new data
+            new_data = Data(
+                file_code=dict_data.get("file_code", ""),
+                title=dict_data.get("title", ""),
+                address=dict_data.get("address", ""),
+                total_price=dict_data.get("total_price"),
+                price_per_meter=dict_data.get("price_per_meter"),
+                mortgage=dict_data.get("mortgage"),
+                rent=dict_data.get("rent"),
+                area=dict_data.get("area"),
+                number_of_rooms=dict_data.get("number_of_rooms"),
+                year_of_manufacture=dict_data.get("year_of_manufacture"),
+                facilities=dict_data.get("facilities", []),
+                pictures=dict_data.get("pictures", []),
+                is_rental=dict_data.get("is_rental")
+            )
+            session.add(new_data)
+            logging.info(f"Inserted data: {dict_data.get('file_code')}")
+            return True
+    except SQLAlchemyError as e:
+        logging.error(f"Error inserting data: {e}")
+        return False
 
-# Function to create similarity data
+# function to create similarity data with duplicate check
 def create_sim(dict_sim):
     try:
         with session_scope() as session:
+            # Check if the combination of id_1 and id_2 already exists
+            existing_sim = session.query(Similarity).filter(
+                Similarity.id_1 == dict_sim.get("property_1"),
+                Similarity.id_2 == dict_sim.get("property_2")
+            ).first()
+            if existing_sim:
+                logging.warning(f"Similarity with id_1 {dict_sim.get('property_1')} and id_2 {dict_sim.get('property_2')} already exists. Skipping insertion.")
+                return False
+            # Insert new similarity data
             new_sim_data = Similarity(
-                id_1 = dict_sim.get("property_1"),
-                id_2 = dict_sim.get("property_2"),
-                similarity = dict_sim.get("similarity")
+                id_1=dict_sim.get("property_1"),
+                id_2=dict_sim.get("property_2"),
+                similarity=dict_sim.get("similarity")
             )
             session.add(new_sim_data)
-            logging.info(f"Inserted data: {dict_sim.get('property_1')} and {dict_sim.get('property_2')}")
+            logging.info(f"Inserted similarity data: {dict_sim.get('property_1')} and {dict_sim.get('property_2')}")
+            return True
     except SQLAlchemyError as e:
-        logging.error(f"Error inserting data: {e}")
+        logging.error(f"Error inserting similarity data: {e}")
+        return False
 
 # Function to fetch all data into a dict
 def select_data():
@@ -126,7 +143,7 @@ def select_data():
     except SQLAlchemyError as e:
         logging.error(f"Error fetching data: {e}")
         return []
-    
+
 # Function to delete data by ID
 def delete_data(data_id):
     try:
@@ -174,23 +191,18 @@ if __name__ == "__main__":
             'facilities': ['آیفون تصویری', 'کمد دیواری', 'خط تلفن'], 
             'pictures': ['https://maskan-file.ir/img/FilesImages/2881482_3.jpg?v=5/15/2025', 'https://maskan-file.ir/img/FilesImages/2881482_1.jpg?v=5/15/2025', 'https://maskan-file.ir/img/FilesImages/2881482_2.jpg?v=5/15/2025'], 
             'is_rental': True
-         }
+         },
+         {'file_code': '', 'title': 'صیاد شیرازی 65 صابر 1', 'address': 'منطقه 9 محله آب و برق خیابان صابر صیاد شیرازی 65 1', 'total_price': None, 'price_per_meter': None, 'mortgage': 80000000, 'rent': 4000000, 'area': 50, 'number_of_rooms': 1, 'year_of_manufacture': None, 'facilities': ['تخلیه', 'انباری', 'هود', 'آیفون تصویری', 'گاز روکار', 'قابل تبدیل'], 'pictures': ['https://maskan-file.ir/img/FilesImages/2495856_6.jpg?v=5/17/2025', 'https://maskan-file.ir/img/FilesImages/2495856_1.jpg?v=5/17/2025', 'https://maskan-file.ir/img/FilesImages/2495856_4.jpg?v=5/17/2025', 'https://maskan-file.ir/img/FilesImages/2495856_8.jpg?v=5/17/2025', 'https://maskan-file.ir/img/FilesImages/2495856_3.jpg?v=5/17/2025', 'https://maskan-file.ir/img/FilesImages/2495856_2.jpg?v=5/17/2025', 'https://maskan-file.ir/img/FilesImages/2495856_5.jpg?v=5/17/2025', 'https://maskan-file.ir/img/FilesImages/2495856_7.jpg?v=5/17/2025'], 'is_rental': True}
     ]
 
-    sim = [
-        {
-            'property_1' : 1,
-            'property_2' : 2,
-            'similarity' : 66.6,
-        }
-    ]
-    
+    # sim = [
+    #     {
+    #         'property_1': 1,
+    #         'property_2': 2,
+    #         'similarity': 66.6,
+    #     }
+    # ]
 
-    # # Insert test data
-    for data in sim:
-        create_sim(data)
-
-    # # Fetch and print all data
-    # results = select_data()
-    # for result in results:
-    #     print(result)
+    # Insert test similarity data
+    for data in test_data:
+        create_data(data)

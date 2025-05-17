@@ -5,6 +5,7 @@ from maskan_file import RealEstateCleaner, RealEstateScraper
 from melkemun import EstateManager
 from melkemun_cleaner import MelkemunEstateCleaner
 from database_manager import create_data, select_data
+from similarity_algorithm import PropertySimilarity
 
 def maskan_scraper(property_codes):
     for property_code in property_codes:
@@ -63,6 +64,12 @@ def melkmun():
 
         # getting the new data (new scraper) and save in database
         melkmun_scraper(10)
+
+def similarity_checker():
+    all_data = select_data()
+    similarity_check = PropertySimilarity
+    check_results = similarity_check.compare_properties(all_data)
+    
 
 def menu():
     while True:
